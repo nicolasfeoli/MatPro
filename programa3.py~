@@ -1,0 +1,171 @@
+from tkinter import *
+import os
+#Programación Orientada a Objetos
+class matrices:
+    def __init__(self,n,v):
+        self.valores_matriz=v
+        self.nombre_matriz=n
+##    def asignarMatriz(self.v)    #metodo tipo set
+##    def obtenerMatriz(self)      #metodo tipo get
+##    def sumaMatriz(self,matriz2) #métodos de operaciones
+##    def restaMatriz(self,matriz2)
+##    def multiplicaMatriz(self,matriz2)
+##    def exponenciacionMatriz(self,exponente)
+
+#Variables Globales
+band_terminar=True
+comando=""
+
+#Interfaz Gráfica
+"Ventana Principal(Mini Menú con Portada)"
+principal=Tk()
+principal.title("Programa MatPro")
+principal.geometry("750x500+280+80")
+principal.resizable(0,0)
+
+"Imágnenes"
+imagen_titulo=PhotoImage(file="TITULO.gif")
+
+"Etiquetas"
+Label(principal, bg="#FFFFFF", width=750, height=500).place(x=0, y=0)
+Label(principal, bg="#FFFFFF", image=imagen_titulo).place(x=90, y=100)
+
+"Botones"
+Button(principal, bg="#556270", text="Ingresar", fg="#FFFFFF", font=("Verdana", 15), command=lambda:ventana_consola()).place(x=310, y=300)
+
+def ventana_consola():
+    global comando, x, linea_comando, consola
+    principal.withdraw()
+    consola=Toplevel()
+    consola.title("Consola de Comandos")
+    consola.geometry("1310x645+20+20")
+    "Etiqueta"
+    Label(consola, bg="#FFFFFF", width=1250, height=550).place(x=0, y=0)
+    Label(consola, bg="#FFFFFF").grid(row=3, column=0) #Etiqueta que colabora con la estética de la ventana
+    Label(consola, bg="#FFFFFF",width=2).grid(row=0, column=0) #Etiqueta que colabora con la estética de la ventana
+    Label(consola, bg="#FFFFFF",width=2).grid(row=1, column=2) #Etiqueta que colabora con la estética de la ventana
+    Label(consola, bg="#FFFFFF", text="MatPro: Operaciones sobre Matrices", fg="#556270", font=("Verdana", 20), \
+          justify=LEFT, anchor=W, height=3, width=57).grid(row=0, column=1)
+    
+    Label(consola, bg="#FFFFFF", text="F1=Ayuda", fg="#556270", font=("Verdana", 10)).place(x=1100, y=33)
+    Label(consola, bg="#FFFFFF", text="V1.0", fg="#556270", font=("Verdana", 10)).place(x=1120, y=63)
+    "Cuadros de Texto"
+    comando=StringVar()
+    linea_comando=Entry(consola, bg="#FFFFFF", highlightbackground="#556270", highlightthickness=2, textvariable=comando, width=153)
+    linea_comando.focus()
+    
+    "Scrollbar y Cuadro de Listas"
+    horizontal=Scrollbar(consola,orient=HORIZONTAL)
+    vertical=Scrollbar(consola)
+    x=Listbox(consola, yscrollcommand=vertical.set,xscrollcommand=horizontal.set, width=153, height=20)
+    vertical.config(command=x.yview)
+    horizontal.config(command=x.xview)
+    vertical.grid(row=1,column=3,sticky="SN")
+    x.grid(row=1,column=1)
+    linea_comando.grid(row=2,column=1)
+    horizontal.grid(row=4,column=1,sticky="EW")
+    
+    'Eventos Tecla "Enter"'
+    consola.bind("<Return>", realiza_comando)
+    consola.bind("<F1>", manual_usuario)
+def manual_usuario(event):
+    os.startfile("Programa_3.pdf")
+
+def realiza_comando(event):
+    global comando, comando_evaluado, x, linea_comando, band_terminar
+    comando_evaluado=comando.get()
+    comando_evaluado=comando_evaluado.split()
+    comando_evaluado[0]="cmd → "+comando_evaluado[0]
+    comando_evaluado=" ".join(comando_evaluado)
+    x.insert(END, comando_evaluado)
+    linea_comando.delete(0,END)
+    comando_evaluado=comando_evaluado.split()
+    try:
+        if (" ".join(comando_evaluado)).lower()=="cmd → fin" or (" ".join(comando_evaluado)).lower()=="cmd → finalizar":
+            comando_fin()
+        elif comando_evaluado[2].lower()=="leer" or comando_evaluado[2].lower()=="lee":
+            band_terminar=False
+            comando_lee()
+        elif comando_evaluado[2].lower()=="leerarchivo" or comando_evaluado[2].lower()=="leearc":
+            comando_leearc()
+        elif comando_evaluado[2].lower()=="ayuda" or comando_evaluado[2].lower()=="ayu":
+            comando_ayu()
+        else:
+            x.insert(END, "ERROR: Comando incorrecto.")
+    except:
+        x.insert(END, "ERROR: Comando incorrecto.")
+    
+def comando_fin():
+    global consola
+    consola.destroy()
+    
+def comando_lee():
+    global comando_evaluado, x, linea_comando
+    comando_evaluado=comando_evaluado[2:]
+    x=[]
+    for e in comando_evaluado:
+        x=x+[e.lower()]
+    comando_evaluado=x[:]
+    if len(comando_evaluado)==2:
+        if nombre_matriz_correcta(comando_evaluado)==True:
+        else:
+            x.insert(END, "ERROR: Nombre de la matriz.")
+        pass#if#aqui va la validacion de las letras y números en el nombre de la matriz
+    else:
+        x.insert(END, "ERROR: Comando incorrecto.")
+##    cont=1
+##    while band_terminar==False:
+##        linea_comando.insert(0, "Fila "+str(cont)+": ")
+def construye_matriz(): #Funcion que construye la matriz
+    if band_terminar==False:
+        print("bien")
+        if comando_evaluado==".":
+            comando_lee()
+##def reconoce_caracteres(x):
+##    #validar que traiga el nombre
+##    x=12#solo por poner
+    
+def comando_leearc():
+    global comando_evaluado, x, linea_comando
+    comando_evaluado=comando_evaluado[2:]
+    if len(comando_evaluado)==1:
+        f=open("datos_matpro.txt","r")
+        texto=f.read()
+        x.insert(END, texto)
+    elif len(comando_evaluado)==2:
+        try:
+            f=open(comando_evaluado[1]+".txt","r")
+            texto=f.read()
+            x.insert(END, texto)
+        except:
+            x.insert(END, "ERROR")
+    else:
+        x.insert(END, "ERROR: El comando funciona de la manera: leerarchivo(leearc) [nombre_de_archivo]")
+
+##def comando_guaarc():
+##def comando_imp():
+##def comando_noi():
+##def comando_op_matrices_1():
+##def comando_op_matrices_2():
+##def comando_nombre_matriz():
+##def comando_mae():
+##def comando_maf():
+##def comando_mio():
+def comando_ayu():
+    global comando_evaluado
+    comando_evaluado=comando_evaluado[2:]
+    if len(comando_evaluado)==2:
+        x=[]
+        for e in comando_evaluado:
+            x=x+[e.lower()]
+        comando_evaluado=x[:]
+        print(comando_evaluado)
+    elif len(comando_evaluado)==1:
+        os.startfile("Programa_3.pdf")
+    diccionario={"leer":"145"}
+    ###OOJOOO:###
+    "Tomar en cuenta la ayuda de todos los comandos"
+##def comando_ace():
+    
+
+principal.mainloop()
